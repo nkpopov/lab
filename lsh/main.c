@@ -126,6 +126,7 @@ static int lsh_launch(char **args)
 
     pid = fork();
 
+    /* Child */
     if (pid == 0)
     {
         if (execvp(args[0], args) < 0)
@@ -135,6 +136,8 @@ static int lsh_launch(char **args)
             return 1;
         }
     }
+
+    /* Handle error */
     else if (pid < 0)
     {
         fprintf(stderr, "lsh_execute: fork error\n");
@@ -142,6 +145,7 @@ static int lsh_launch(char **args)
         return 1;
     }
 
+    /* Parent */
     do
     {
         if (waitpid(pid, &status, WUNTRACED) < 0)
