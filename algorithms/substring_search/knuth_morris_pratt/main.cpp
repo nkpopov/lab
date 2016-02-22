@@ -40,8 +40,8 @@ dfa_t construct_dfa(const std::string &patt) {
     return dfa;
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
+    
     if (argc != 3){
         fprintf(stderr, "unexpected command line arguments\n");
         fprintf(stderr, "try %s (text) (pattern)\n", argv[0]);
