@@ -6,8 +6,8 @@ int main(int argc, char *argv[])
 {
     if (argc != 3)
     {
-        fprintf(stderr, "\n unexpected arguments\n");
-        fprintf(stderr, " try %s (text) (pattern)\n\n", argv[0]);
+        fprintf(stderr, "unexpected arguments\n");
+        fprintf(stderr, "try %s (text) (pattern)\n", argv[0]);
         return 1;
     }
 
@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
 
     if (text.size() < pattern.size())
     {
-        printf("\n no match found\n\n");
+        printf("no match found\n");
         return 0;
     }
 
@@ -30,13 +30,13 @@ int main(int argc, char *argv[])
 
         if (j == pattern.size())
         {
-            printf("\n match: %d\n\n", i);
+            printf("match: %d\n", i);
             return 0;
         }
     }
     
 
-    printf("\n no match found\n\n");
+    printf("no match found\n");
     return 0;
 }
 
