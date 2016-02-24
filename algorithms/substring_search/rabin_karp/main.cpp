@@ -50,6 +50,11 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
+    /* You can notice additional qval in the first string of the block
+     * inside for statement. According to video lectures this additional 
+     * qval required to be sure that expression inside brackets is
+     * positive. 
+     */
     for (int i = patt.size(); i < text.size(); ++i) {
         thash = (thash + qval - (rm * text[i - patt.size()]) % qval) % qval;
         thash = (thash * 256  + text[i]) % qval;
