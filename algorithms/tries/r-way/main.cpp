@@ -69,6 +69,9 @@ class Trie {
         
         /* Check if key is in the trie */
         bool contains(const std::string &key) const;
+
+        /* Erase element with key from the trie */
+        void erase(const std::string &key);
         
     private:
 
@@ -81,7 +84,7 @@ class Trie {
         Node<T> *insert_impl(Node<T> *node, const std::string &key,
                 const T &value, int depth);
 
-        std::pair<bool, T> get_impl(Node<T> *node,
+        const Node<T> *get_impl(const Node<T> *node,
                 const std::string &key, int depth) const;
 
         /* Root node of trie */
@@ -113,7 +116,7 @@ Node<T> *Trie<T>::insert_impl(Node<T> *node,
     if (depth == key.size()) {
         node->m_value = value;
         return node;
-    };
+    }
 
     char c          = key[depth];
     Node<T> *next   = node->m_next[c];
@@ -129,22 +132,30 @@ bool Trie<T>::contains(const std::string &key) const {
 
 template <typename T>
 std::pair<bool, T> Trie<T>::get(const std::string &key) const {
-    return get_impl(m_root, key, 0);
-}
+    const Node<T> *node = get_impl(m_root, key, 0);
 
-template <typename T>
-std::pair<bool, T> Trie<T>::get_impl(Node<T> *node,
-    const std::string &key, int depth) const {
     if (node == NULL) {
         return std::make_pair(false, T());
     }
 
-    if (depth == key.size()) {
-        bool valid = (node->m_value != Node<T>::s_invalid);
-        return std::make_pair(valid, node->m_value);
+    const T &value = node->m_value; 
+    return std::make_pair(value != Node<T>::s_invalid, value);
+}
+
+template <typename T>
+const Node<T> *Trie<T>::get_impl(const Node<T> *node,
+        const std::string &key, int depth) const {
+
+    if (node == NULL) {
+        return NULL;
     }
 
-    return get_impl(node->m_next[key[depth]], key, depth + 1);
+    if (depth == key.size()) {
+        return node;
+    }
+
+    char c = key[depth];
+    return get_impl(node->m_next[c], key, depth + 1);
 }
 
 int main(int argc, char *argv[]) {
