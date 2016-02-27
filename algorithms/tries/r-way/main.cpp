@@ -17,8 +17,11 @@ class Node {
         Node(const Node &) = delete;
         Node &operator= (const Node &) = delete;
        ~Node();
-        
+
+        /* Set of child nodes */
         std::vector<Node *> m_next;
+
+        /* Node's value */
         T m_value;
 
         /* Amount of all possible characters in the trie. Here we
@@ -84,8 +87,23 @@ class Trie {
         Node<T> *insert_impl(Node<T> *node, const std::string &key,
                 const T &value, int depth);
 
+        /* Auxiliary method that is used in erase method
+         * implementation. It returns updated version of the node in
+         * lower level of trie. NULL value for erased node and not
+         * NULL value for other nodes.
+         */
+        Node<T> *erase_impl(Node<T> *node, const std::string &key,
+                int depth);
+
+        /* Auxiliary method that is used in get method implementation.
+         * It returns node that corresponds to key in arguments. 
+         * Otherwise it returns NULL. 
+         */
         const Node<T> *get_impl(const Node<T> *node,
                 const std::string &key, int depth) const;
+
+        /* Is node from arguments leaf node? */
+        bool leaf_node(const Node<T> *node) const;
 
         /* Root node of trie */
         Node<T> *m_root;
@@ -109,9 +127,9 @@ void Trie<T>::insert(const std::string &key, const T &value) {
 template <typename T>
 Node<T> *Trie<T>::insert_impl(Node<T> *node,
     const std::string &key, const T &value, int depth) { 
-    if (node == NULL) {
+
+    if (node == NULL)
         node = new Node<T>();
-    }
 
     if (depth == key.size()) {
         node->m_value = value;
@@ -134,9 +152,8 @@ template <typename T>
 std::pair<bool, T> Trie<T>::get(const std::string &key) const {
     const Node<T> *node = get_impl(m_root, key, 0);
 
-    if (node == NULL) {
+    if (node == NULL)
         return std::make_pair(false, T());
-    }
 
     const T &value = node->m_value; 
     return std::make_pair(value != Node<T>::s_invalid, value);
@@ -146,16 +163,71 @@ template <typename T>
 const Node<T> *Trie<T>::get_impl(const Node<T> *node,
         const std::string &key, int depth) const {
 
-    if (node == NULL) {
-        return NULL;
-    }
+    if (node == NULL)
+        return  NULL;
 
-    if (depth == key.size()) {
+    if (depth == key.size())
         return node;
-    }
 
     char c = key[depth];
     return get_impl(node->m_next[c], key, depth + 1);
+}
+
+template <typename T>
+void Trie<T>::erase(const std::string &key) {
+    m_root = erase_impl(m_root, key, 0);
+}
+
+template <typename T>
+Node<T> *Trie<T>::erase_impl(Node<T> *node,
+        const std::string &key, int depth) {
+
+    /* If there is no such node which corresponds to key in the trie
+     * then there is no node to delete.
+     */
+    if (node == NULL)
+        return  NULL;
+
+    /* We found node corresponding to key. Mark it as intermediate. If
+     * it is a leaf node (there are no other keys for which path goes
+     * through this node) then it can be erased.
+     */
+    if (depth == key.size() &&
+        node->m_value != Node<T>::s_invalid) {
+        node->m_value  = Node<T>::s_invalid;
+
+        if (leaf_node(node)) {
+            delete node;
+            return NULL;
+        }
+
+        return node;
+    }
+
+    char c          = key[depth];
+    node->m_next[c] = erase_impl(node->m_next[c], key, depth + 1);
+
+    /* Clean up all other leaf intermediate nodes on the way back from
+     * erased node to the root.
+     */
+    if (leaf_node(node) &&
+        node->m_value == Node<T>::s_invalid) {
+        delete node;
+        return NULL;
+    }
+        
+    return node;
+}
+
+template <typename T>
+bool Trie<T>::leaf_node(const Node<T> *node) const {
+    for (const Node<T> *i: node->m_next) {
+        if (i != NULL) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 int main(int argc, char *argv[]) {
@@ -164,6 +236,10 @@ int main(int argc, char *argv[]) {
     trie.insert("potato",   1);
     trie.insert("pomidoro", 2);
     trie.insert("carrot",   3);
+
+    trie.erase("pomidoro");
+    trie.erase("cabbage");
+    trie.erase("garlic");
 
     printf("potato:   %d\n", trie.get("potato").second);
     printf("pomidoro: %d\n", trie.get("pomidoro").second);
