@@ -142,12 +142,10 @@ std::pair<bool, T> Trie<T>::get_impl(Node<T> *node,
     }
 
     if (depth == key.size()) {
-        return std::make_pair(node->m_value != T(),
-            node->m_value);
+        return std::make_pair(node->m_value != T(), node->m_value);
     }
 
-    return get_impl(node->m_next[key[depth]], key,
-            depth + 1);
+    return get_impl(node->m_next[key[depth]], key, depth + 1);
 }
 
 int main(int argc, char *argv[]) {
