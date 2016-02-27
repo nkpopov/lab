@@ -25,12 +25,13 @@ class Node {
          * assume that we are dealing with extended ASCII alphabet. 
          */
         static const int s_base = 256;
+        static const T s_invalid = T();
 };
 
 template <typename T>
 Node<T>::Node()
     :m_next(std::vector<Node *>(s_base, NULL))
-    ,m_value(T())
+    ,m_value(s_invalid)
 {}
 
 template <typename T>
@@ -102,11 +103,9 @@ void Trie<T>::insert(const std::string &key, const T &value) {
     m_root = insert_impl(m_root, key, value, 0);
 }
 
-
 template <typename T>
-Node<T> *Trie<T>::insert_impl(Node<T> *node, const std::string &key,
-        const T &value, int depth) { 
-
+Node<T> *Trie<T>::insert_impl(Node<T> *node,
+    const std::string &key, const T &value, int depth) { 
     if (node == NULL) {
         node = new Node<T>();
     }
@@ -116,9 +115,9 @@ Node<T> *Trie<T>::insert_impl(Node<T> *node, const std::string &key,
         return node;
     };
 
-    char c = key[depth];
-    node->m_next[c] = insert_impl(node->m_next[c], key,
-        value, depth + 1); 
+    char c          = key[depth];
+    Node<T> *next   = node->m_next[c];
+    node->m_next[c] = insert_impl(next, key, value, depth + 1); 
     return node;
 }
 
@@ -135,14 +134,14 @@ std::pair<bool, T> Trie<T>::get(const std::string &key) const {
 
 template <typename T>
 std::pair<bool, T> Trie<T>::get_impl(Node<T> *node,
-        const std::string &key, int depth) const {
-
+    const std::string &key, int depth) const {
     if (node == NULL) {
         return std::make_pair(false, T());
     }
 
     if (depth == key.size()) {
-        return std::make_pair(node->m_value != T(), node->m_value);
+        bool valid = (node->m_value != Node<T>::s_invalid);
+        return std::make_pair(valid, node->m_value);
     }
 
     return get_impl(node->m_next[key[depth]], key, depth + 1);
