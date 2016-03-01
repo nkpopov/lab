@@ -15,18 +15,23 @@ class Node {
         
         Node *m_lnode;
         Node *m_rnode;
+        Node *m_nnode;
+        char  m_letter;
         int   m_value;
 };
 
 Node::Node()
     :m_lnode(NULL)
     ,m_rnode(NULL)
+    ,m_nnode(NULL)
+    ,m_letter(0)
     ,m_value(-1)
 {}
 
 Node::~Node() {
     delete m_lnode;
     delete m_rnode;
+    delete m_nnode;
 }
 
 class Tst {
@@ -59,9 +64,49 @@ class Tst {
 
     private:
 
+        /* Auxilliary procedure that is used in implementation of
+         * insert method. It returns pointer to sub-trie (node) at
+         * level (depth) with (key, value) pair inserted in it.
+         */
+        Node *insert_impl(Node *node, const std::string &key,
+                int val, int depth);
+
         /* Root node of the trie */
         Node *m_root;
 };
+
+Tst::Tst()
+    :m_root(NULL)
+{}
+
+Tst::~Tst() {
+    delete m_root;
+}
+
+void Tst::insert(const std::string &key, int val) {
+    m_root = insert_impl(m_root, key, val, 0);
+}
+
+Node *Tst::insert_impl(Node *node, const std::string &key,
+        int value, int depth) {
+
+    if (node == NULL) {
+        node = new Node();
+        node->m_letter = key[depth];
+    }
+
+    if (depth == key.size()) {
+        node->m_value = value;
+    } else if (key[depth] == node->m_letter) {
+        node->m_nnode = insert_impl(node->m_nnode, key, value, depth + 1);
+    } else if (key[depth] < node->m_letter) {
+        node->m_lnode = insert_impl(node->m_lnode, key, value, depth);
+    } else if (key[depth] > node->m_letter) {
+        node->m_rnode = insert_impl(node->m_rnode, key, value, depth);
+    }
+    
+    return node;
+}
 
 int main(int argc, char *argv[]) {
 
