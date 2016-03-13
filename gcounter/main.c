@@ -7,7 +7,6 @@
  * Programming' by Peter Van Der Linden. And I decided to implement 
  * it for educational purposes.
  */
-
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
@@ -403,11 +402,15 @@ void print_available_interfaces(void) {
 }
 
 void print_usage(void) {
-    printf("usage: ...\n");
+    const char *const usage = \
+        "usage: gcounter [options] [iface]\n" \
+        "-i if  monitor specified network interface\n" \
+        "-l     print available network interfaces\n";
+
+    printf("%s", usage);
 }
 
 int main(int argc, char *argv[]) {
-
     int opt;
     while ((opt = getopt(argc, argv, "i:lh")) != -1) {
         switch (opt) {
