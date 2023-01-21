@@ -69,6 +69,7 @@ const std::unordered_set<int>& Graph::vertices() const
   return vertices_;
 }
 
+// Complexity: O(ElogV).
 void dijkstra(
   const Graph& graph,
   const int v,
@@ -103,6 +104,11 @@ void dijkstra(
       const int a = edge.a;
       const int b = edge.b;
       const int w = edge.w;
+      if (distances[a] == std::numeric_limits<int>::max())
+      {
+	continue;
+      }
+
       const int d = distances[a] + edge.w;
       if (distances[b] > d)
       {
